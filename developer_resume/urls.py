@@ -19,6 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("accounts/", include("allauth.urls")),
+    path('accounts/', include("allauth.urls")),
+    path('api/', include('core.urls')),
     path('', include('cv_feedback_app.urls'), name='home'),
 ]
