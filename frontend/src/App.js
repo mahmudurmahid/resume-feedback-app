@@ -15,7 +15,7 @@ const router = createBrowserRouter([
   { path: "/register", element: <Register /> },
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/upload-resume", element: <UploadResume /> },
-  { path: "/upload-job", element: <UploadJobDescription /> },
+  { path: "/upload-job-description", element: <UploadJobDescription /> },
   { path: "/tailor-resume", element: <TailorResume /> },
   { path: "/download-resume", element: <DownloadResume /> },
 ]);
