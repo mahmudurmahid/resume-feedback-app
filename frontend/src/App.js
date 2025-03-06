@@ -9,6 +9,7 @@ import UploadJobDescription from "./pages/UploadJobDescription";
 import TailorResume from "./pages/TailorResume";
 import DownloadResume from "./pages/DownloadResume";
 import VersionHistory from "./pages/VersionHistory";
+import JobDescriptionLibrary from "./pages/JobDescriptionLibrary";
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
   { path: "/tailor-resume", element: <TailorResume /> },
   { path: "/download-resume", element: <DownloadResume /> },
   { path: "/version-history", element: <VersionHistory /> },
+  { path: "/job-description-library", element: <JobDescriptionLibrary /> },
 ]);
 
 function App() {

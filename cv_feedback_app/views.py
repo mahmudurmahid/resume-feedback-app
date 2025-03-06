@@ -7,7 +7,7 @@ import PyPDF2
 import openai
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from .models import Resume, JobDescription, TailoredResumeVersion
 from .serializers import (
@@ -131,3 +131,39 @@ class VersionHistoryView(generics.ListAPIView):
 
     def get_queryset(self):
         return TailoredResumeVersion.objects.filter(user=self.request.user).order_by('-created_at')
+
+# Delete a version
+class DeleteVersionView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = TailoredResumeVersion.objects.all()
+    lookup_field = 'id'
+
+    def delete(self, request, *args, **kwargs):
+        version = self.get_object()
+        if version.user != request.user:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        version.delete()
+        return Response({"message": "Version deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+# Restore a version
+class RestoreVersionView(generics.RetrieveAPIView):
+    serializer_class = TailoredResumeVersionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = TailoredResumeVersion.objects.all()
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        version = self.get_object()
+        if version.user != request.user:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({
+            "tailored_resume": version.tailored_resume
+        })
+
+# Job Description Library View
+class JobDescriptionLibraryView(generics.ListAPIView):
+    serializer_class = JobDescriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return JobDescription.objects.filter(user=self.request.user).order_by('-uploaded_at')
