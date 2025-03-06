@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from django.contrib.auth import get_user_model
 
 import os
 import docx
@@ -167,3 +168,12 @@ class JobDescriptionLibraryView(generics.ListAPIView):
 
     def get_queryset(self):
         return JobDescription.objects.filter(user=self.request.user).order_by('-uploaded_at')
+
+# Delete Account View
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"message": "Account deleted."}, status=204)

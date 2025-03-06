@@ -9,6 +9,7 @@ from .views import (
     VersionHistoryView,
     DeleteVersionView,
     RestoreVersionView
+    DeleteAccountView
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('versions/', VersionHistoryView.as_view(), name='version_history'),
     path('versions/<int:id>/delete/', DeleteVersionView.as_view(), name='delete_version'),
     path('versions/<int:id>/restore/', RestoreVersionView.as_view(), name='restore_version'),
+    path('delete-account/', DeleteAccountView.as_view(), name='delete_account'),
 ]
