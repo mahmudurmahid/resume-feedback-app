@@ -8,8 +8,10 @@ from .views import (
     LatestFilesView,
     VersionHistoryView,
     DeleteVersionView,
-    RestoreVersionView
-    DeleteAccountView
+    RestoreVersionView,
+    DeleteAccountView,
+    ChangePasswordView,
+    ProfileView,
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path('versions/<int:id>/delete/', DeleteVersionView.as_view(), name='delete_version'),
     path('versions/<int:id>/restore/', RestoreVersionView.as_view(), name='restore_version'),
     path('delete-account/', DeleteAccountView.as_view(), name='delete_account'),
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
+    path('profile/', ProfileView.as_view(), name='profile'),
 ]

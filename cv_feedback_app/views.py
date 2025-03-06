@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
 import os
 import docx
@@ -8,7 +9,7 @@ import PyPDF2
 import openai
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers
 from rest_framework.permissions import IsAuthenticated
 from .models import Resume, JobDescription, TailoredResumeVersion
 from .serializers import (
@@ -177,3 +178,32 @@ class DeleteAccountView(APIView):
         user = request.user
         user.delete()
         return Response({"message": "Account deleted."}, status=204)
+
+# Change Password View
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    class PasswordSerializer(serializers.Serializer):
+        old_password = serializers.CharField(required=True)
+        new_password = serializers.CharField(required=True)
+
+    def post(self, request):
+        serializer = self.PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.validated_data['old_password']):
+                return Response({"error": "Old password is incorrect."}, status=400)
+            try:
+                validate_password(serializer.validated_data['new_password'], user)
+            except serializers.ValidationError as e:
+                return Response({"error": e.messages}, status=400)
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({"message": "Password changed successfully."})
+        return Response(serializer.errors, status=400)
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"email": request.user.email})
