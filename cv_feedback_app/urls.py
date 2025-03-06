@@ -5,6 +5,7 @@ from .views import (
     ResumeUploadView,
     JobDescriptionUploadView,
     LatestFilesView,
+    VersionHistoryView,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('upload/resume/', ResumeUploadView.as_view(), name='upload_resume'),
     path('upload/job-description/', JobDescriptionUploadView.as_view(), name='upload_job_description'),
     path('latest-files/', LatestFilesView.as_view(), name='latest_files'),
+    path('versions/', VersionHistoryView.as_view(), name='version_history'),
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Resume, JobDescription
+from .models import Resume, JobDescription, TailoredResumeVersion
 
 
 class ResumeSerializer(serializers.ModelSerializer):
@@ -20,3 +20,8 @@ class JobDescriptionSerializer(serializers.ModelSerializer):
                 "You must provide either a file or pasted text."
             )
         return data
+
+class TailoredResumeVersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TailoredResumeVersion
+        fields = ['id', 'tailored_resume', 'job_description', 'created_at']

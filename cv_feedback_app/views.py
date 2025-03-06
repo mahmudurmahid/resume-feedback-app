@@ -9,8 +9,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
-from .models import Resume, JobDescription
-from .serializers import ResumeSerializer, JobDescriptionSerializer
+from .models import Resume, JobDescription, TailoredResumeVersion
+from .serializers import (
+    ResumeSerializer,
+    JobDescriptionSerializer,
+    TailoredResumeVersionSerializer,
+)
 
 
 # ✅ Load OpenAI API key
@@ -56,11 +60,20 @@ class TailorResumeView(APIView):
             )
 
             tailored_resume = response.choices[0].message.content.strip()
+
+            # ✅ Save tailored version to history
+            TailoredResumeVersion.objects.create(
+                user=request.user,
+                tailored_resume=tailored_resume,
+                job_description=JobDescription.objects.filter(user=request.user).last()
+            )
+
             return Response({'tailored_resume': tailored_resume})
 
         except Exception as e:
             print("Error from OpenAI:", str(e))
             return Response({"error": str(e)}, status=500)
+
 
 # ✅ Resume Upload View
 class ResumeUploadView(generics.CreateAPIView):
@@ -109,3 +122,12 @@ class LatestFilesView(APIView):
             "resume_text": resume_text,
             "job_description": job_desc_text,
         })
+
+
+# ✅ Version History View
+class VersionHistoryView(generics.ListAPIView):
+    serializer_class = TailoredResumeVersionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return TailoredResumeVersion.objects.filter(user=self.request.user).order_by('-created_at')
