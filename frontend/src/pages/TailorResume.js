@@ -7,6 +7,22 @@ import "react-quill/dist/quill.snow.css";
 
 const backendUrl = "http://127.0.0.1:8000";
 
+async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) return false;
+
+  try {
+    const response = await axios.post(`${backendUrl}/api/token/refresh/`, {
+      refresh: refreshToken,
+    });
+    localStorage.setItem("access_token", response.data.access);
+    return response.data.access;
+  } catch (err) {
+    console.error("Failed to refresh token:", err.response);
+    return false;
+  }
+}
+
 function TailorResume() {
   const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -15,7 +31,6 @@ function TailorResume() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Redirect to login if no token exists
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -50,10 +65,17 @@ function TailorResume() {
     fetchFiles();
   }, []);
 
-  const handleTailor = async () => {
+  const handleTailor = async (retry = false) => {
     setLoading(true);
     setError("");
-    const authToken = localStorage.getItem("access_token");
+
+    let authToken = localStorage.getItem("access_token");
+
+    if (!resumeText || !jobDescription) {
+      setError("One or both fields are empty. Please fill them in.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -71,8 +93,19 @@ function TailorResume() {
       );
       setTailoredResume(response.data.tailored_resume);
     } catch (err) {
-      console.error("Error tailoring resume:", err.response);
-      setError("Error tailoring resume. Please try again.");
+      if (err.response && err.response.status === 401 && !retry) {
+        console.warn("Access token expired. Refreshing...");
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          await handleTailor(true); // Retry once with the new token
+        } else {
+          setError("Session expired. Please log in again.");
+          navigate("/login");
+        }
+      } else {
+        console.error("Error tailoring resume:", err.response);
+        setError("Error tailoring resume. Please try again.");
+      }
     }
     setLoading(false);
   };
@@ -107,7 +140,7 @@ function TailorResume() {
 
       <button
         className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={handleTailor}
+        onClick={() => handleTailor()}
         disabled={loading}
       >
         {loading ? "Tailoring..." : "Tailor Resume"}

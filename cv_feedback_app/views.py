@@ -2,48 +2,54 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 
 import os
-import openai
 import docx
 import PyPDF2
+import openai
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics, permissions
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from .models import Resume, JobDescription
 from .serializers import ResumeSerializer, JobDescriptionSerializer
 
+
+# ✅ Load OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# Create your views here.
+
+# ✅ Homepage
 class HomePage(TemplateView):
     template_name = 'index.html'
 
+
+# ✅ Tailor Resume View
 class TailorResumeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        resume_text = request.data.get('resume_text')
-        job_description = request.data.get('job_description')
+        print("Received data:", request.data)
+        resume_text = request.data.get("resume_text")
+        job_description = request.data.get("job_description")
 
         if not resume_text or not job_description:
-            return Response({'error': 'Both resume and job description are required.'}, status=400)
-
-        prompt = f"""
-        You are an expert resume editor. Tailor the following resume to perfectly match the given job description.
-        
-        Job Description:
-        {job_description}
-        
-        Resume:
-        {resume_text}
-        
-        Provide the improved, professional resume below:
-        """
+            return Response({"error": "Missing resume or job description."}, status=400)
 
         try:
-            openai.api_key = os.environ.get("OPENAI_API_KEY")
+            print("Using OpenAI Key:", openai.api_key)
 
-            response = openai.ChatCompletion.create(
+            prompt = f"""
+            You are an expert resume editor. Tailor the following resume to perfectly match the given job description.
+
+            Job Description:
+            {job_description}
+
+            Resume:
+            {resume_text}
+
+            Provide the improved, professional resume below:
+            """
+
+            response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
@@ -53,73 +59,10 @@ class TailorResumeView(APIView):
             return Response({'tailored_resume': tailored_resume})
 
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        resume_text = request.data.get('resume_text')
-        job_description = request.data.get('job_description')
-
-        if not resume_text or not job_description:
-            return Response({'error': 'Both resume and job description are required.'}, status=400)
-
-        prompt = f"""
-        You are an expert resume editor. Tailor the following resume to perfectly match the given job description.
-        
-        Job Description:
-        {job_description}
-        
-        Resume:
-        {resume_text}
-        
-        Provide the improved, professional resume below:
-        """
-
-        openai.api_key = os.environ.get("OPENAI_API_KEY")
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        tailored_resume = response.choices[0].message.content.strip()
-
-        return Response({'tailored_resume': tailored_resume})
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        resume_text = request.data.get("resume")
-        job_description = request.data.get("job_description")
-
-        if not resume_text or not job_description:
-            return Response({"error": "Missing resume or job description."}, status=400)
-
-        try:
-            openai.api_key = os.environ.get("OPENAI_API_KEY")
-            prompt = f"""
-            Tailor the following resume to match this job description.
-
-            Resume:
-            {resume_text}
-
-            Job Description:
-            {job_description}
-
-            Provide the improved resume:
-            """
-
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-            )
-
-            tailored_resume = response.choices[0].message.content.strip()
-            return Response({"tailored_resume": tailored_resume})
-
-        except Exception as e:
+            print("Error from OpenAI:", str(e))
             return Response({"error": str(e)}, status=500)
 
+# ✅ Resume Upload View
 class ResumeUploadView(generics.CreateAPIView):
     serializer_class = ResumeSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -127,6 +70,8 @@ class ResumeUploadView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
+# ✅ Job Description Upload View
 class JobDescriptionUploadView(generics.CreateAPIView):
     serializer_class = JobDescriptionSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -134,6 +79,8 @@ class JobDescriptionUploadView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
+# ✅ Extract Text from Files
 def extract_text(file):
     if file.name.endswith(".pdf"):
         reader = PyPDF2.PdfReader(file)
@@ -143,6 +90,8 @@ def extract_text(file):
         return "\n".join(p.text for p in doc.paragraphs)
     return ""
 
+
+# ✅ Latest Uploaded Files View
 class LatestFilesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -154,7 +103,7 @@ class LatestFilesView(APIView):
         if job_desc:
             job_desc_text = extract_text(job_desc.file) if job_desc.file else job_desc.pasted_text
         else:
-                job_desc_text = ""
+            job_desc_text = ""
 
         return Response({
             "resume_text": resume_text,
