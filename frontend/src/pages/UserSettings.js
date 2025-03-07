@@ -7,7 +7,6 @@ function UserSettings() {
   const [newPassword, setNewPassword] = useState("");
   const backendUrl = "http://127.0.0.1:8000";
 
-  // ✅ Get user email on page load
   useEffect(() => {
     const fetchProfile = async () => {
       const authToken = localStorage.getItem("access_token");
@@ -23,7 +22,6 @@ function UserSettings() {
     fetchProfile();
   }, []);
 
-  // ✅ Change password
   const handlePasswordChange = async () => {
     const authToken = localStorage.getItem("access_token");
     try {
@@ -32,22 +30,17 @@ function UserSettings() {
         { old_password: oldPassword, new_password: newPassword },
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
-      alert("Password changed successfully!");
+      alert("Password changed!");
       setOldPassword("");
       setNewPassword("");
     } catch (err) {
-      console.error("Password change failed:", err.response);
       alert("Failed to change password.");
     }
   };
 
-  // ✅ Delete account
   const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account?"
-    );
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Are you sure you want to delete your account?"))
+      return;
     const authToken = localStorage.getItem("access_token");
     try {
       await axios.delete(`${backendUrl}/api/delete-account/`, {
@@ -56,69 +49,70 @@ function UserSettings() {
       alert("Account deleted.");
       localStorage.clear();
       window.location.href = "/register";
-    } catch (error) {
-      console.error("Failed to delete account:", error.response);
-      alert("Error deleting account.");
+    } catch (err) {
+      alert("Failed to delete account.");
     }
   };
 
-  // ✅ Logout
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/login";
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
+    <div className="p-10 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-6">
+        Account Settings
+      </h1>
 
-      {/* ✅ Show email */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">Email</h2>
-        <p>{email || "Loading..."}</p>
-      </div>
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-2">Email</h2>
+        <p className="p-3 bg-gray-100 dark:bg-gray-800 rounded">
+          {email || "Loading..."}
+        </p>
+      </section>
 
-      {/* ✅ Change password */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">Change Password</h2>
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Change Password</h2>
         <input
           type="password"
           placeholder="Old Password"
           value={oldPassword}
           onChange={(e) => setOldPassword(e.target.value)}
-          className="block mb-2 p-2 border w-full"
+          className="block mb-2 p-3 border rounded w-full"
         />
         <input
           type="password"
           placeholder="New Password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="block mb-4 p-2 border w-full"
+          className="block mb-4 p-3 border rounded w-full"
         />
         <button
           onClick={handlePasswordChange}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
         >
           Change Password
         </button>
-      </div>
+      </section>
 
-      {/* ✅ Actions */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">Actions</h2>
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-gray-500 text-white rounded mr-2"
-        >
-          Logout
-        </button>
-        <button
-          onClick={handleDeleteAccount}
-          className="px-4 py-2 bg-red-500 text-white rounded"
-        >
-          Delete Account
-        </button>
-      </div>
+      <section className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Actions</h2>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={handleLogout}
+            className="w-full py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          >
+            Logout
+          </button>
+          <button
+            onClick={handleDeleteAccount}
+            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Delete Account
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

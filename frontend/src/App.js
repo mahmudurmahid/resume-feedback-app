@@ -10,8 +10,8 @@ import UploadJobDescription from "./pages/UploadJobDescription";
 import TailorResume from "./pages/TailorResume";
 import DownloadResume from "./pages/DownloadResume";
 import VersionHistory from "./pages/VersionHistory";
-import UserSettings from "./pages/UserSettings";
 import JobDescriptionLibrary from "./pages/JobDescriptionLibrary";
+import UserSettings from "./pages/UserSettings";
 
 const router = createBrowserRouter([
   {
@@ -23,12 +23,12 @@ const router = createBrowserRouter([
       { path: "register", element: <Register /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "upload-resume", element: <UploadResume /> },
-      { path: "upload-job", element: <UploadJobDescription /> },
+      { path: "upload-job-description", element: <UploadJobDescription /> },
       { path: "tailor-resume", element: <TailorResume /> },
       { path: "download-resume", element: <DownloadResume /> },
-      { path: "versions", element: <VersionHistory /> },
+      { path: "version-history", element: <VersionHistory /> },
+      { path: "job-description-library", element: <JobDescriptionLibrary /> },
       { path: "settings", element: <UserSettings /> },
-      { path: "job-library", element: <JobDescriptionLibrary /> },
     ],
   },
 ]);

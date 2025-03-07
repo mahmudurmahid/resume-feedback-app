@@ -17,18 +17,22 @@ function JobDescriptionLibrary() {
   }, []);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Job Description Library</h1>
+    <div className="p-8 max-w-4xl mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
+      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-6">
+        Job Description Library
+      </h1>
       {descriptions.length === 0 ? (
-        <p>No job descriptions saved yet.</p>
+        <p className="text-lg text-gray-700 dark:text-gray-300">
+          No job descriptions saved yet.
+        </p>
       ) : (
-        <ul>
+        <ul className="space-y-4">
           {descriptions.map((desc) => (
             <li
               key={desc.id}
-              className="mb-4 p-4 border rounded bg-white shadow"
+              className="p-4 bg-gray-100 dark:bg-gray-700 rounded-xl shadow"
             >
-              <pre className="whitespace-pre-wrap">
+              <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
                 {desc.pasted_text || "Uploaded file (download link here later)"}
               </pre>
             </li>

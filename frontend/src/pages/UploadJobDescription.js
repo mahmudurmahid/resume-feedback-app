@@ -8,14 +8,12 @@ function UploadJobDescription() {
 
   const handleUpload = async () => {
     const authToken = localStorage.getItem("access_token");
-
     if (!authToken) {
-      alert("You must be logged in to upload a job description.");
+      alert("You must be logged in.");
       return;
     }
-
     if (!file && !pastedText) {
-      alert("Please select a file or paste a job description.");
+      alert("Please provide a file or paste text.");
       return;
     }
 
@@ -30,32 +28,33 @@ function UploadJobDescription() {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Job description uploaded successfully!");
+      alert("Job description uploaded!");
     } catch (err) {
-      console.error("Upload failed:", err.response);
-      alert("Failed to upload job description.");
+      alert("Upload failed.");
     }
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Upload Job Description</h1>
+    <div className="p-8 max-w-md mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
+      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-6">
+        Upload Job Description
+      </h1>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files[0])}
-        className="block mb-4"
+        className="w-full p-3 border rounded-xl mb-4 bg-gray-50 dark:bg-gray-700 dark:text-white"
       />
       <textarea
-        placeholder="Or paste the job description here"
+        placeholder="Or paste job description here"
         value={pastedText}
         onChange={(e) => setPastedText(e.target.value)}
-        className="block w-full mb-4 p-2 border"
+        className="w-full p-3 border rounded-xl mb-4 bg-gray-50 dark:bg-gray-700 dark:text-white"
       />
       <button
         onClick={handleUpload}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
+        className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl"
       >
-        Upload Job Description
+        Upload
       </button>
     </div>
   );

@@ -7,22 +7,6 @@ import "react-quill/dist/quill.snow.css";
 
 const backendUrl = "http://127.0.0.1:8000";
 
-async function refreshAccessToken() {
-  const refreshToken = localStorage.getItem("refresh_token");
-  if (!refreshToken) return false;
-
-  try {
-    const response = await axios.post(`${backendUrl}/api/token/refresh/`, {
-      refresh: refreshToken,
-    });
-    localStorage.setItem("access_token", response.data.access);
-    return response.data.access;
-  } catch (err) {
-    console.error("Failed to refresh token:", err.response);
-    return false;
-  }
-}
-
 function TailorResume() {
   const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -32,136 +16,102 @@ function TailorResume() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    const authToken = localStorage.getItem("access_token");
+    if (!authToken) {
       alert("You are not logged in!");
       navigate("/login");
     }
   }, [navigate]);
 
   useEffect(() => {
-    console.log("Fetching latest files...");
     const fetchFiles = async () => {
       const authToken = localStorage.getItem("access_token");
-      if (!authToken) {
-        console.error("No access token found!");
-        return;
-      }
-
       try {
         const response = await axios.get(`${backendUrl}/api/latest-files/`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` },
         });
-        console.log("Latest files loaded:", response.data);
         setResumeText(response.data.resume_text);
         setJobDescription(response.data.job_description);
       } catch (err) {
-        console.error("Error fetching latest files:", err.response);
         setError("Failed to load latest files.");
       }
     };
     fetchFiles();
   }, []);
 
-  const handleTailor = async (retry = false) => {
+  const handleTailor = async () => {
     setLoading(true);
     setError("");
-
-    let authToken = localStorage.getItem("access_token");
-
-    if (!resumeText || !jobDescription) {
-      setError("One or both fields are empty. Please fill them in.");
-      setLoading(false);
-      return;
-    }
+    const authToken = localStorage.getItem("access_token");
 
     try {
       const response = await axios.post(
         `${backendUrl}/api/tailor-resume/`,
-        {
-          resume_text: resumeText,
-          job_description: jobDescription,
-        },
+        { resume_text: resumeText, job_description: jobDescription },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}"`,
             "Content-Type": "application/json",
           },
         }
       );
       setTailoredResume(response.data.tailored_resume);
     } catch (err) {
-      if (err.response && err.response.status === 401 && !retry) {
-        console.warn("Access token expired. Refreshing...");
-        const newToken = await refreshAccessToken();
-        if (newToken) {
-          await handleTailor(true); // Retry once with the new token
-        } else {
-          setError("Session expired. Please log in again.");
-          navigate("/login");
-        }
-      } else {
-        console.error("Error tailoring resume:", err.response);
-        setError("Error tailoring resume. Please try again.");
-      }
+      setError("Error tailoring resume. Please try again.");
     }
     setLoading(false);
   };
 
   const handleDownload = () => {
     const doc = new jsPDF();
-    doc.setFontSize(12);
-    const element = document.createElement("div");
-    element.innerHTML = tailoredResume;
-    const textOnly = element.innerText;
-    doc.text(textOnly, 10, 10);
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = tailoredResume;
+    doc.text(tempElement.innerText, 10, 10);
     doc.save("Tailored_Resume.pdf");
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Tailor Your Resume</h1>
+    <div className="p-8 max-w-4xl mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
+      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-6">
+        Tailor Your Resume
+      </h1>
 
       <textarea
-        className="w-full p-2 border mb-4"
+        className="w-full p-3 border rounded-xl mb-4 bg-gray-50 dark:bg-gray-700 dark:text-white"
         placeholder="Paste your resume text here"
         value={resumeText}
         onChange={(e) => setResumeText(e.target.value)}
       />
-
       <textarea
-        className="w-full p-2 border mb-4"
+        className="w-full p-3 border rounded-xl mb-4 bg-gray-50 dark:bg-gray-700 dark:text-white"
         placeholder="Paste the job description here"
         value={jobDescription}
         onChange={(e) => setJobDescription(e.target.value)}
       />
-
       <button
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={() => handleTailor()}
+        onClick={handleTailor}
         disabled={loading}
+        className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl"
       >
         {loading ? "Tailoring..." : "Tailor Resume"}
       </button>
 
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
 
       {tailoredResume && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Tailored Resume</h2>
-
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            Tailored Resume
+          </h2>
           <ReactQuill
             value={tailoredResume}
             onChange={setTailoredResume}
-            className="bg-white"
+            className="bg-white dark:bg-gray-700"
             theme="snow"
           />
-
           <button
-            className="px-4 py-2 bg-green-500 text-white rounded mt-4"
             onClick={handleDownload}
+            className="mt-4 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl"
           >
             Download as PDF
           </button>

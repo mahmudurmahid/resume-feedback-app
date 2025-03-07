@@ -1,13 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;800&display=swap");
-
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;800&display=swap");
+
 body {
-  @apply bg-gray-100 text-gray-800;
   font-family: "Lato", sans-serif;
 }
+
 h1,
 h2,
 h3,
