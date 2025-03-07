@@ -16,7 +16,7 @@ function UserSettings() {
         });
         setEmail(response.data.email);
       } catch (err) {
-        console.error("Failed to fetch profile:", err.response);
+        console.error(err);
       }
     };
     fetchProfile();
@@ -30,17 +30,15 @@ function UserSettings() {
         { old_password: oldPassword, new_password: newPassword },
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
-      alert("Password changed!");
-      setOldPassword("");
-      setNewPassword("");
+      alert("Password changed successfully!");
     } catch (err) {
-      alert("Failed to change password.");
+      console.error(err);
+      alert("Password change failed.");
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?"))
-      return;
+    if (!window.confirm("Delete your account?")) return;
     const authToken = localStorage.getItem("access_token");
     try {
       await axios.delete(`${backendUrl}/api/delete-account/`, {
@@ -50,7 +48,8 @@ function UserSettings() {
       localStorage.clear();
       window.location.href = "/register";
     } catch (err) {
-      alert("Failed to delete account.");
+      console.error(err);
+      alert("Account deletion failed.");
     }
   };
 
@@ -60,59 +59,52 @@ function UserSettings() {
   };
 
   return (
-    <div className="p-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-6">
-        Account Settings
-      </h1>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-heading font-bold mb-6">Account Settings</h1>
 
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">Email</h2>
-        <p className="p-3 bg-gray-100 dark:bg-gray-800 rounded">
-          {email || "Loading..."}
-        </p>
-      </section>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Email</h2>
+        <p>{email || "Loading..."}</p>
+      </div>
 
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Change Password</h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Change Password</h2>
         <input
           type="password"
           placeholder="Old Password"
           value={oldPassword}
           onChange={(e) => setOldPassword(e.target.value)}
-          className="block mb-2 p-3 border rounded w-full"
+          className="block w-full p-2 border rounded mb-2"
         />
         <input
           type="password"
           placeholder="New Password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="block mb-4 p-3 border rounded w-full"
+          className="block w-full p-2 border rounded mb-4"
         />
         <button
           onClick={handlePasswordChange}
-          className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Change Password
         </button>
-      </section>
+      </div>
 
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Actions</h2>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={handleLogout}
-            className="w-full py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-          >
-            Logout
-          </button>
-          <button
-            onClick={handleDeleteAccount}
-            className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
-          >
-            Delete Account
-          </button>
-        </div>
-      </section>
+      <div className="flex gap-4">
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-gray-500 text-white rounded"
+        >
+          Logout
+        </button>
+        <button
+          onClick={handleDeleteAccount}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Delete Account
+        </button>
+      </div>
     </div>
   );
 }

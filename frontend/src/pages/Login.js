@@ -10,16 +10,11 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosInstance.post("/token/", {
-        username,
-        password,
-      });
-
+      const res = await axiosInstance.post("/token/", { username, password });
       localStorage.setItem("access_token", res.data.access);
       localStorage.setItem("refresh_token", res.data.refresh);
-
       alert("Logged in!");
-      navigate("/tailor-resume");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Login failed.");
@@ -27,31 +22,32 @@ function Login() {
   };
 
   return (
-    <div className="p-8 max-w-md mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
-      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-6">
+    <form
+      onSubmit={handleLogin}
+      className="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow"
+    >
+      <h1 className="text-2xl font-heading mb-4">Login</h1>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className="block w-full mb-3 p-2 border rounded"
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="block w-full mb-4 p-2 border rounded"
+      />
+      <button
+        type="submit"
+        className="w-full px-4 py-2 bg-blue-500 text-white rounded"
+      >
         Login
-      </h1>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Username"
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-3 border rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-white"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border rounded-xl bg-gray-50 dark:bg-gray-700 dark:text-white"
-        />
-        <button
-          type="submit"
-          className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl"
-        >
-          Login
-        </button>
-      </form>
-    </div>
+      </button>
+    </form>
   );
 }
 

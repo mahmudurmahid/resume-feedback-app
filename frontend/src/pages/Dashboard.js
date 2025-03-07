@@ -2,14 +2,11 @@ import React from "react";
 
 function Dashboard() {
   return (
-    <div className="p-8 max-w-4xl mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
-      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-4">
+    <div className="text-center py-20">
+      <h1 className="text-4xl font-heading font-bold text-primary mb-6">
         Dashboard
       </h1>
-      <p className="text-lg text-gray-700 dark:text-gray-300">
-        Welcome to your dashboard! Navigate using the menu to tailor your
-        resume, view version history, and manage your settings.
-      </p>
+      <p>Welcome to your dashboard!</p>
     </div>
   );
 }

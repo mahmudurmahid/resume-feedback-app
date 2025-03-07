@@ -7,15 +7,7 @@ function UploadResume() {
 
   const handleUpload = async () => {
     const authToken = localStorage.getItem("access_token");
-    if (!authToken) {
-      alert("You must be logged in.");
-      return;
-    }
-    if (!file) {
-      alert("Please select a file.");
-      return;
-    }
-
+    if (!file) return alert("Select a file first!");
     const formData = new FormData();
     formData.append("file", file);
 
@@ -26,26 +18,24 @@ function UploadResume() {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Resume uploaded!");
+      alert("Resume uploaded successfully!");
     } catch (err) {
+      console.error(err);
       alert("Upload failed.");
     }
   };
 
   return (
-    <div className="p-8 max-w-md mx-auto bg-white shadow rounded-2xl dark:bg-gray-800">
-      <h1 className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-6">
+    <div className="max-w-md mx-auto p-6">
+      <h1 class="text-2xl font-heading font-bold mb-4 text-primary">
         Upload Resume
       </h1>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files[0])}
-        className="w-full p-3 border rounded-xl mb-4 bg-gray-50 dark:bg-gray-700 dark:text-white"
+        className="block w-full mb-4"
       />
-      <button
-        onClick={handleUpload}
-        className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl"
-      >
+      <button class="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-primary">
         Upload
       </button>
     </div>
